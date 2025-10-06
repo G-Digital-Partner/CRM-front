@@ -34,6 +34,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [signInData, setSignInData] = useState({
     email: 'danaffs2@test.com',
@@ -175,8 +177,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       onLogin(response); // Pass the response object
     } catch (error: any) {
       console.error('Login failed:', error);
-      // Show only an alert, don't refresh or navigate
-      alert(error.message || 'Échec de la connexion. Veuillez vérifier vos identifiants et réessayer.');
+      setErrorMessage(error.message || 'Échec de la connexion. Veuillez vérifier vos identifiants.');
+      setShowErrorToast(true);
     } finally {
       setIsLoading(false);
     }
@@ -216,8 +218,29 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       }, 1500);
     } catch (error: any) {
       console.error('Registration failed:', error);
-      // Show only an alert, don't refresh or navigate
-      alert(error.message || 'Échec de l\'inscription. Veuillez réessayer.');
+
+      // Extract error message from the API response
+      let errorMsg = 'Échec de l\'inscription. Veuillez réessayer.';
+
+      if (error.message) {
+        errorMsg = error.message;
+      }
+
+      // Check if the error has the specific format with errors object
+      if (error.errors) {
+        if (error.errors.email && error.errors.email.length > 0) {
+          errorMsg = error.errors.email[0];
+        } else {
+          // If there are other field errors, join them
+          const errorMessages = Object.values(error.errors).flat();
+          if (errorMessages.length > 0) {
+            errorMsg = errorMessages[0] as string;
+          }
+        }
+      }
+
+      setErrorMessage(errorMsg);
+      setShowErrorToast(true);
     } finally {
       setIsLoading(false);
     }
@@ -243,6 +266,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
     }
   }, [showSuccessToast]);
 
+  // Auto-hide error toast after 5 seconds
+  React.useEffect(() => {
+    if (showErrorToast) {
+      const timer = setTimeout(() => {
+        setShowErrorToast(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showErrorToast]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Success Toast */}
@@ -258,6 +291,27 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
             </div>
             <button
               onClick={() => setShowSuccessToast(false)}
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Error Toast */}
+      {showErrorToast && (
+        <div className="fixed top-4 right-4 z-50 animate-fade-in">
+          <div className="bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-3 max-w-md">
+            <div className="bg-white/20 rounded-full p-2">
+              <X size={24} className="text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold">Erreur</p>
+              <p className="text-red-100 text-sm">{errorMessage}</p>
+            </div>
+            <button
+              onClick={() => setShowErrorToast(false)}
               className="text-white/80 hover:text-white transition-colors"
             >
               <X size={20} />

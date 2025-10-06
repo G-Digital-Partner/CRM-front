@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Calendar, Clock, User, AlertCircle, CheckCircle2, Circle, Edit, Trash2, X, Phone, Mail, Users, FileText, Grid, Columns, Filter, ChevronDown } from 'lucide-react';
+import { Plus, Calendar, Clock, User, AlertCircle, CheckCircle2, Circle, CreditCard as Edit, Trash2, X, Phone, Mail, Users, FileText, Grid2x2 as Grid, Columns2 as Columns, Filter, ChevronDown } from 'lucide-react';
 import { taskService, Task, CreateTaskData, UpdateTaskData } from '../services/taskService';
 import { userService, OrganizationUser } from '../services/userService';
 
@@ -715,10 +715,20 @@ const Tasks: React.FC<TasksProps> = ({ searchTerm }) => {
                         onChange={(e) => {
                           setFormData({ ...formData, related_to: e.target.value });
                           setIsManualEntry(true);
+                          if (e.target.value.trim()) {
+                            setShowUserDropdown(false);
+                          }
                         }}
                         onFocus={() => {
                           if (!isManualEntry) {
                             setShowUserDropdown(true);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            setShowUserDropdown(false);
+                            setIsManualEntry(false);
                           }
                         }}
                         className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -904,10 +914,20 @@ const Tasks: React.FC<TasksProps> = ({ searchTerm }) => {
                         onChange={(e) => {
                           setFormData({ ...formData, related_to: e.target.value });
                           setIsManualEntry(true);
+                          if (e.target.value.trim()) {
+                            setShowUserDropdown(false);
+                          }
                         }}
                         onFocus={() => {
                           if (!isManualEntry) {
                             setShowUserDropdown(true);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            setShowUserDropdown(false);
+                            setIsManualEntry(false);
                           }
                         }}
                         className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

@@ -685,7 +685,7 @@ const Opportunities: React.FC<OpportunitiesProps> = ({ searchTerm }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Étape</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Étape *</label>
                 <select
                   value={formData.stage}
                   onChange={(e) => setFormData({ ...formData, stage: e.target.value })}
@@ -699,7 +699,7 @@ const Opportunities: React.FC<OpportunitiesProps> = ({ searchTerm }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Probabilité (%)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Probabilité (%) *</label>
                 <input
                   type="number"
                   min="0"
@@ -713,7 +713,7 @@ const Opportunities: React.FC<OpportunitiesProps> = ({ searchTerm }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date de clôture</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Date de clôture *</label>
                 <input
                   type="date"
                   value={formData.close_date}
@@ -810,7 +810,10 @@ const Opportunities: React.FC<OpportunitiesProps> = ({ searchTerm }) => {
                   placeholder="Entrez la description de l'opportunité"
                   disabled={operationLoading.create}
                 />
+              <p className="text-xs text-gray-500 mt-1">Les cases marqués par * sont obligatoires.</p>
+
               </div>
+
             </div>
 
             <div className="flex items-center justify-end space-x-3 mt-6">

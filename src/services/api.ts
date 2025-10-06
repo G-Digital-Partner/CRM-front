@@ -170,7 +170,10 @@ class HttpClient {
 
       // Handle other HTTP errors
       if (!response.ok) {
-        throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+        const error = new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+        (error as any).errors = data.errors;
+        (error as any).status = response.status;
+        throw error;
       }
 
       // For successful responses, wrap in our standard format if not already wrapped

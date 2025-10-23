@@ -53,7 +53,7 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
     email: currentUser?.email || '',
     phone: '+33 1 23 45 67 89',
     location: 'Paris, France',
-    position: 'Utilisateur',
+    position: 'Abonné',
     memberSince: currentUser?.created_at 
       ? new Date(currentUser.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) 
       : 'Janvier 2024',
@@ -276,16 +276,13 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
               </div>
             ) : (
               <div className="space-y-4">
-                {['name', 'position', 'email', 'phone', 'location'].map((field) => (
+                {['name', 'email'].map((field) => (
                   <div key={field}>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {field === 'name' ? 'Nom complet' :
-                       field === 'position' ? 'Poste' :
-                       field === 'email' ? 'Email' :
-                       field === 'phone' ? 'Téléphone' : 'Localisation'}
+                      {field === 'name' ? 'Nom complet' : 'Email'}
                     </label>
                     <input
-                      type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
+                      type={field === 'email' ? 'email' : 'text'}
                       value={(editedProfile as any)[field]}
                       onChange={(e) => setEditedProfile({ ...editedProfile, [field]: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

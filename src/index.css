@@ -95,6 +95,10 @@
   .animate-bounce-slow {
     animation: bounce 3s infinite;
   }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
 }
 
 @keyframes float {
@@ -114,6 +118,17 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 

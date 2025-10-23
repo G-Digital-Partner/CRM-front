@@ -7,6 +7,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useOrganization } from '../contexts/OrganizationContext';
 import { authService } from '../services/authService';
 import { dashboardService, DashboardStats } from '../services/dashboardService';
+import { userService } from '../services/userService';
 
 interface ProfileSidebarProps {
   isOpen: boolean;
@@ -38,6 +39,10 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsError, setStatsError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
   
   const currentUser = authService.getStoredUser();
   const userDisplayName = authService.getUserDisplayName();
@@ -87,15 +92,40 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
   };
 
   const handleSaveProfile = async () => {
+    if (!currentUser?.id) {
+      setToastMessage('Erreur: Utilisateur non trouvé');
+      setToastType('error');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+      return;
+    }
+
     try {
-      await authService.updateProfile({
+      setIsSaving(true);
+      const updatedUser = await userService.updateUser(currentUser.id, {
         name: editedProfile.name,
         email: editedProfile.email,
       });
+
       setUserProfile(editedProfile);
       setIsEditingProfile(false);
+
+      setToastMessage('Profil mis à jour avec succès');
+      setToastType('success');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error('Failed to save profile:', error);
+      setToastMessage('Erreur lors de la mise à jour du profil');
+      setToastType('error');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -124,9 +154,19 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
 
   return (
     <>
+      {/* Toast Notification */}
+      {showToast && (
+        <div className={`fixed top-4 right-4 z-[60] px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-slide-in ${
+          toastType === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        }`}>
+          {toastType === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+          <span className="font-medium">{toastMessage}</span>
+        </div>
+      )}
+
       {/* Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={onClose}
         />
@@ -175,8 +215,13 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                   <button onClick={handleCancelEdit} className="flex items-center space-x-2 text-gray-600 hover:text-gray-700 transition-colors px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">
                     <X size={16} /><span className="text-sm font-medium">Annuler</span>
                   </button>
-                  <button onClick={handleSaveProfile} className="flex items-center space-x-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors px-3 py-2 rounded-lg">
-                    <Save size={16} /><span className="text-sm font-medium">Enregistrer</span>
+                  <button
+                    onClick={handleSaveProfile}
+                    disabled={isSaving}
+                    className="flex items-center space-x-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors px-3 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Save size={16} />
+                    <span className="text-sm font-medium">{isSaving ? 'Enregistrement...' : 'Enregistrer'}</span>
                   </button>
                 </div>
               )}
@@ -192,13 +237,16 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                     <p className="font-medium text-gray-900 truncate">{userProfile.email}</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
+               {/**
+                * 
+                *  <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
                   <Phone size={20} className="text-green-600 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm text-gray-600">Téléphone</p>
                     <p className="font-medium text-gray-900 truncate">{userProfile.phone}</p>
                   </div>
                 </div>
+
                 <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
                   <MapPin size={20} className="text-red-600 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
@@ -213,6 +261,7 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                     <p className="font-medium text-gray-900 truncate">{userProfile.memberSince}</p>
                   </div>
                 </div>
+                    */}
                 {currentUser?.email_verified_at && (
                   <div className="flex items-center space-x-3 p-4 bg-green-50 rounded-xl">
                     <CheckCircle size={20} className="text-green-600 flex-shrink-0" />
